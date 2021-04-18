@@ -8,7 +8,11 @@
  */
 Heap *create(int capacitate)
 {
-	
+    Heap *h = (Heap *)malloc(sizeof(Heap));
+    h->size = 0;
+    h->capacity = capacitate;
+    h->vec = (int *)malloc(sizeof(int) * h->capacity);
+    return h;
 }
 /**
  * TODO: Implementati functia de returnare a index-ului
@@ -19,7 +23,9 @@ Heap *create(int capacitate)
  */
 int parent(Heap *h, int i)
 {
-
+    if (i > h->size - 1 || i <= 0)
+        return -1;
+    return (i - 1) / 2;
 }
 
 /**
@@ -31,7 +37,10 @@ int parent(Heap *h, int i)
  */
 int leftChild(Heap *h, int i)
 {
-	
+    int poz = 2 * i + 1;
+    if (poz > h->size - 1 || i < 0)
+        return -1;
+    return poz;
 }
 
 /**
@@ -43,7 +52,10 @@ int leftChild(Heap *h, int i)
  */
 int rightChild(Heap *h, int i)
 {
-	
+    int poz = 2 * i + 2;
+    if (poz > h->size - 1 || i < 0)
+        return -1;
+    return poz;
 }
 
 /**
@@ -54,7 +66,9 @@ int rightChild(Heap *h, int i)
  */
 int returnRoot(Heap *h)
 {
-	
+    if (h->size)
+        return h->vec[0];
+    return -1;
 }
 
 /**
@@ -65,17 +79,41 @@ int returnRoot(Heap *h)
  */
 void heapify(Heap *h, int i)
 {
-	
+    int l, r, min, aux;
+    while (1)
+    {
+        min = i;
+        l = leftChild(h, i);
+        r = rightChild(h, i);
+        if (l!=-1 && h->vec[l] < h->vec[min])
+            min = l;
+        if (r!=-1 && h->vec[r] < h->vec[min])
+            min = r;
+        if (min != i)
+        {
+            aux = h->vec[i];
+            h->vec[i] = h->vec[min];
+            h->vec[min] = aux;
+            i = min;
+        }
+        else
+            break;
+    }
 }
 
 /**
  * TODO: Implementati functia de redimensionare a unui heap  
- * @param  *h: heap-ul binar
+ * @param  *h: heap-ul binadr
  * @retval None
  */
 void resize(Heap *h)
 {
-	
+    int *v = (int *)realloc(h->vec, h->capacity = h->capacity * 2);
+    if (v == NULL)
+        return;
+    if (h->vec != NULL)
+        free(h->vec);
+    h->vec = v;
 }
 
 /**
@@ -86,7 +124,17 @@ void resize(Heap *h)
  */
 void insert(Heap *h, int x)
 {
-	
+    int i;
+    if (h->size == h->capacity)
+        resize(h);
+    i = h->size;
+    h->size++;
+    while (i > 0 && x < h->vec[(i - 1) / 2])
+    {
+        h->vec[i] = h->vec[(i - 1) / 2];
+        i = (i - 1) / 2;
+    }
+    h->vec[i] = x;
 }
 
 /**
@@ -96,7 +144,12 @@ void insert(Heap *h, int x)
  */
 void deleteHeap(Heap **h)
 {
-
+    if (*h == NULL)
+        return;
+    if ((*h)->vec != NULL)
+        free((*h)->vec);
+    free(*h);
+    *h = NULL;
 }
 
 /**
@@ -107,7 +160,10 @@ void deleteHeap(Heap **h)
  */
 void printHeap(Heap *h)
 {
-	
+    int i;
+    for (i = 0; i < h->size; i++)
+        printf("%d ", h->vec[i]);
+    printf("\n");
 }
 
 /**
@@ -119,7 +175,10 @@ void printHeap(Heap *h)
  */
 void printHeapInFile(Heap *h, FILE *output)
 {
-	
+    int i;
+    for (i = 0; i < h->size; i++)
+        fprintf(output, "%d ", h->vec[i]);
+    printf("\n");
 }
 
 /**
@@ -132,5 +191,13 @@ void printHeapInFile(Heap *h, FILE *output)
  */
 void populateHeap(Heap *h, int *buffer, int dimensiune)
 {
-	
+    if (h == NULL || buffer == NULL || dimensiune == 0)
+        return;
+    while (dimensiune > h->capacity)
+        resize(h);
+    for (int i = 0; i < dimensiune; i++)
+        h->vec[i] = buffer[i];
+    h->size = dimensiune;
+    for (int i = (dimensiune - 1) / 2; i >= 0; i--)
+        heapify(h, i);
 }

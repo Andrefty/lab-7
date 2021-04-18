@@ -11,5 +11,28 @@
  */
 int *kMaxElem(int *buffer, int dimensiune, int k)
 {
+    Heap *heap = create(k);
+    populateHeap(heap, buffer, k);
+    
+    for (int i = k; i < dimensiune; i++)
+    {
+        if (heap->vec[0] < buffer[i])
+        {
+            heap->vec[0] = buffer[i];
+            heapify(heap, 0);
+        }
+    }
+    
+    int *vect, i = 0;
+    vect = (int *)calloc(k, sizeof(int));
 
+    while (i < k)
+    {
+        vect[k - i - 1] = heap->vec[0];
+        heap->size--;
+        heap->vec[0] = heap->vec[heap->size];
+        heapify(heap, 0);
+        i++;
+    }
+    return vect;
 }
